@@ -35,7 +35,7 @@ namespace AdventOfCode
                 Values = values;
             }
 
-            public int GetXLength()
+            internal int GetXLength()
             {
                 if (Values.Count >= 0)
                 {
@@ -45,6 +45,20 @@ namespace AdventOfCode
                 {
                     return 0;
                 }
+            }
+
+            internal void removeRecord(List<char> record)
+            {
+                this.Values.Remove(record);
+
+            }
+            internal void removeRecords(List<List<char>> record)
+            {
+                foreach (var r in record)
+                {
+                    removeRecord(r);
+                }
+
             }
 
         }
@@ -63,7 +77,7 @@ namespace AdventOfCode
                 for (var i = 0; i < DiagnosticReport.GetXLength(); i++)
                 {
                     var listAtIndexI = ListDivider.GetListAtIndexFrom2DList(DiagnosticReport.Values, i);
-                    var mostOftenOccuring = ListCounter.GetElementMostOftenOccuring(listAtIndexI, new List<char>() {'0', '1'});
+                    var mostOftenOccuring = ListCounter.GetElementMostOftenOccuring(listAtIndexI, new List<char>() {'0', '1'},'1');
                     binaryEpsilonScore.Add(mostOftenOccuring);
                 }
                 
@@ -76,7 +90,7 @@ namespace AdventOfCode
                 for (var i = 0; i < DiagnosticReport.GetXLength(); i++)
                 {
                     var listAtIndexI = ListDivider.GetListAtIndexFrom2DList(DiagnosticReport.Values, i);
-                    var mostOftenOccuring = ListCounter.GetElementLeastOftenOccuring(listAtIndexI, new List<char>() {'0', '1'});
+                    var mostOftenOccuring = ListCounter.GetElementLeastOftenOccuring(listAtIndexI, new List<char>() {'0', '1'}, '1');
                     binaryGammaScore.Add(mostOftenOccuring);
                 }
                 return BinaryNumberConverter.ConvertToDecimal(binaryGammaScore);
@@ -91,19 +105,102 @@ namespace AdventOfCode
 
         public class LifeSupportRating
         {
-            internal DiagnosticReport
+            private DiagnosticReport DiagnosticReport { get; set; }
             internal LifeSupportRating(DiagnosticReport diagnosticReport)
             {
+                DiagnosticReport = diagnosticReport;
+            }
+
+            internal int GetOxygenLevel()
+            {
+                var recordsStillPossible = DiagnosticReport.Values;
+                while (recordsStillPossible.Count > 1)
+                {
+                    for (var i = 0; i < DiagnosticReport.GetXLength(); i++)
+                    {
+                        if (recordsStillPossible.Count <= 1)
+                        {
+                            break;
+                        }
+                        var elementMostOftenOccuring = ListCounter.GetElementMostOftenOccuring(
+                            ListDivider.GetListAtIndexFrom2DList(recordsStillPossible, i),
+                            new List<char>() {'0', '1'},
+                            '1');
+                        recordsStillPossible = ListFilter.KeepAllElements(recordsStillPossible, elementMostOftenOccuring, i);
+                    }
+                }
+
+                return BinaryNumberConverter.ConvertToDecimal(recordsStillPossible[0]);
+            }
+
+            internal int GetCo2Level()
+            {
+                var recordsStillPossible = DiagnosticReport.Values;
+                var lengthOfDiagnosticReport = DiagnosticReport.GetXLength();
+                while (recordsStillPossible.Count > 1)
+                {
+                    for (var i = 0; i < lengthOfDiagnosticReport; i++)
+                    {
+                        if (recordsStillPossible.Count <= 1)
+                        {
+                            break;
+                        }
+                        var elementLeastOftenOccuring = ListCounter.GetElementLeastOftenOccuring(
+                            ListDivider.GetListAtIndexFrom2DList(recordsStillPossible, i),
+                            new List<char>() {'0', '1'},
+                            '0');
+                        recordsStillPossible = ListFilter.KeepAllElements(recordsStillPossible, elementLeastOftenOccuring, i);
+                    }
+                }
+                return BinaryNumberConverter.ConvertToDecimal(recordsStillPossible[0]);
+            }
+
+            internal int CalculateScore()
+            {
+                return GetCo2Level() * GetOxygenLevel();
             }
             
+            
+            
 
+        }
+
+        public class ListFilter
+        {
+            internal static List<List<char>> RemoveAllElements(List<List<char>> records,char character, int index)
+            {
+                foreach (var record in records)
+                {
+                    if (record[index] == character)
+                    {
+                        records.Remove(record);
+                    }
+                    
+                }
+
+                return records;
+            }
+            internal static List<List<char>> KeepAllElements(List<List<char>> records,char character, int index)
+            {
+                var recordsCopy = new List<List<char>>();
+                for (var i = 0; i < records.Count; i++)
+                {
+                    if (records[i][index] == character)
+                    {
+                        recordsCopy.Add(records[i]);
+                    }
+                    
+                }
+
+                return recordsCopy;
+            }
         }
 
 
         public class ListCounter
         {
-            
-            internal static char GetElementLeastOftenOccuring(List<char> list, List<char> elementsToSearch)
+
+            internal static char GetElementLeastOftenOccuring(List<char> list, List<char> elementsToSearch, char sameAmount)
             {
                 if (elementsToSearch.Count == 0)
                 {
@@ -119,11 +216,15 @@ namespace AdventOfCode
                         currentBestElement = element;
                         currentBestElementCount = CountNumberOfOccurences(list, element);
                     }
+                    else if (CountNumberOfOccurences(list, element) == currentBestElementCount)
+                    {
+                        currentBestElement = sameAmount;
+                    }
                 }
                 return currentBestElement;
             }
             
-            internal static char GetElementMostOftenOccuring(List<char> list, List<char> elementsToSearch)
+            internal static char GetElementMostOftenOccuring(List<char> list, List<char> elementsToSearch, char sameAmounnt)
             {
                 if (elementsToSearch.Count == 0)
                 {
@@ -138,6 +239,9 @@ namespace AdventOfCode
                     {
                         currentBestElement = element;
                         currentBestElementCount = CountNumberOfOccurences(list, element);
+                    }else if (CountNumberOfOccurences(list, element) == currentBestElementCount)
+                    {
+                        currentBestElement = sameAmounnt;
                     }
                 }
                 return currentBestElement;
@@ -192,8 +296,9 @@ namespace AdventOfCode
         {
             public static void Part1()
             {
-                var powerConsumptionCalculator = new PowerConsumptionCalculator(InputReader.ReadDiagnosticReportFromFile("day3.txt"));
+                var powerConsumptionCalculator = new LifeSupportRating(InputReader.ReadDiagnosticReportFromFile("day3.txt"));
                 Console.WriteLine(powerConsumptionCalculator.CalculateScore());
+                
             }
 
         }

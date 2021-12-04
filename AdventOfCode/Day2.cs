@@ -10,39 +10,38 @@ namespace AdventOfCode
         {
             public class SubMarine
             {
-                internal int DepthPosition { get; set; }
-                internal int XPosition { get; set; }
-
                 public SubMarine()
                 {
                     DepthPosition = 0;
                     XPosition = 0;
                 }
+
+                internal int DepthPosition { get; set; }
+                internal int XPosition { get; set; }
             }
 
             public sealed class SubMarinePart2 : SubMarine
             {
-                internal int Aim { get; set; }
-
                 public SubMarinePart2()
                 {
                     DepthPosition = 0;
                     XPosition = 0;
                     Aim = 0;
                 }
+
+                internal int Aim { get; set; }
             }
 
             public abstract class Command
             {
-                protected int Argument { get; }
-
                 protected Command(int argument)
                 {
                     Argument = argument;
                 }
 
-                public abstract void Execute(SubMarine subMarine);
+                protected int Argument { get; }
 
+                public abstract void Execute(SubMarine subMarine);
             }
 
             public sealed class Forward : Command
@@ -150,7 +149,6 @@ namespace AdventOfCode
                         "forward" => new ForwardPart2(argument),
                         _ => throw new Exception("Wrong Command!")
                     };
-
                 }
 
                 public static List<Command> ReadCommands(string filename)
@@ -158,10 +156,7 @@ namespace AdventOfCode
                     var inputLines = File.ReadFileLines(filename);
                     var commands = new List<Command>();
 
-                    foreach (var inputLine in inputLines)
-                    {
-                        commands.Add(ReadCommand(inputLine));
-                    }
+                    foreach (var inputLine in inputLines) commands.Add(ReadCommand(inputLine));
 
                     return commands;
                 }
@@ -171,10 +166,7 @@ namespace AdventOfCode
                     var inputLines = File.ReadFileLines(filename);
                     var commands = new List<Command>();
 
-                    foreach (var inputLine in inputLines)
-                    {
-                        commands.Add(ReadCommandPart2(inputLine));
-                    }
+                    foreach (var inputLine in inputLines) commands.Add(ReadCommandPart2(inputLine));
 
                     return commands;
                 }
@@ -186,11 +178,8 @@ namespace AdventOfCode
             public static int Part1()
             {
                 var subMarine = new SubMarine.SubMarine();
-                var commands = SubMarine.InputReader.ReadCommands("day2.txt");
-                foreach (var command in commands)
-                {
-                    command.Execute(subMarine);
-                }
+                var commands = InputReader.ReadCommands("day2.txt");
+                foreach (var command in commands) command.Execute(subMarine);
 
                 return subMarine.DepthPosition * subMarine.XPosition;
             }
@@ -198,11 +187,8 @@ namespace AdventOfCode
             public static int Part2()
             {
                 var subMarine = new SubMarinePart2();
-                var commands = SubMarine.InputReader.ReadCommandsPart2("day2.txt");
-                foreach (var command in commands)
-                {
-                    command.Execute(subMarine);
-                }
+                var commands = InputReader.ReadCommandsPart2("day2.txt");
+                foreach (var command in commands) command.Execute(subMarine);
 
                 return subMarine.DepthPosition * subMarine.XPosition;
             }

@@ -1,12 +1,10 @@
-﻿using System;
-
-namespace AdventOfCode
+﻿namespace AdventOfCode
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            Day3.Day3.Part1();
+            Day4.Day4.Part1();
         }
     }
 }

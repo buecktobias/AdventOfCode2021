@@ -13,10 +13,7 @@ namespace AdventOfCode
         {
             var stringArrayLines = ReadFileLines(filename);
             var integerArrayLines = new List<int>();
-            foreach (var stringLine in stringArrayLines)
-            {
-                integerArrayLines.Add(int.Parse(stringLine));
-            }
+            foreach (var stringLine in stringArrayLines) integerArrayLines.Add(int.Parse(stringLine));
 
             return integerArrayLines;
         }

@@ -28,15 +28,44 @@ namespace AdventOfCode
                 return BingoFields.Any(field => new BingoNumberChecker(field).HasFieldWon());
             }
 
-            private BingoField.BingoField GetWinnerField()
+            internal BingoField.BingoField PlayGameUntilOnlyOneBingoFieldHasNotWon()
             {
-                if (!HasAnyBoardWon())
+                var bingoFieldsNotWonYet = this.BingoFields.ToList();
+                while (bingoFieldsNotWonYet.Count > 1)
                 {
-                    throw new Exception("No Bingo Field has won!");
+                    bingoFieldsNotWonYet = this.BingoFields.ToList();
+                    NextTurn();
+                    foreach (var winnerField in GetAllWinnerFields())
+                    {
+                        bingoFieldsNotWonYet.Remove(winnerField);
+                    }
                 }
 
+                return bingoFieldsNotWonYet[0];
+            }
+
+            internal BingoField.BingoField GetLosingBingoField()
+            {
+                var lastBingoField = PlayGameUntilOnlyOneBingoFieldHasNotWon();
+                
+                while (!(new BingoNumberChecker(lastBingoField).HasFieldWon()))
+                {
+                    Console.WriteLine(new BingoNumberChecker(lastBingoField).HasFieldWon());
+                    NextTurn();
+                }
+                return lastBingoField;
+            }
+            
+            private List<BingoField.BingoField> GetAllWinnerFields()
+            {
+
                 var winningBingoFields = BingoFields.Where(field => new BingoNumberChecker(field).HasFieldWon());
-                return winningBingoFields.ToList()[0];
+                return winningBingoFields.ToList();
+            }
+
+            private BingoField.BingoField GetWinnerField()
+            {
+                return this.GetAllWinnerFields().ToList()[0];
             }
 
 
@@ -135,7 +164,7 @@ namespace AdventOfCode
                 private bool HasColumnsWon()
                 {
                     for (var i = 0; i < BingoField.Numbers.Count; i++)
-                        if (HasRowWon(i))
+                        if (HasColumnWon(i))
                             return true;
 
                     return false;
@@ -237,6 +266,13 @@ namespace AdventOfCode
                 var bingoGame = InputReader.ReadGameFromFile("day4.txt");
                 var winningBoard = bingoGame.WinningBingoField();
                 Console.WriteLine(BingoFieldScoreCalculator.CalculateScore(bingoGame, winningBoard));
+            }
+
+            public static void Part2()
+            {
+                var bingoGame = InputReader.ReadGameFromFile("day4.txt");
+                var losingBingoField = bingoGame.GetLosingBingoField(); 
+                Console.WriteLine(BingoFieldScoreCalculator.CalculateScore(bingoGame, losingBingoField));
             }
         }
     }
